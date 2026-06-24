@@ -1,0 +1,111 @@
+@import "https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap";
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Layout sizes */
+  --sidebar-width: 220px;
+  --topbar-height: 72px;
+
+  /* Colors (approved defaults) */
+  --color-sidebar: #111827;
+  --color-sidebar-foreground: #E5E7EB;
+  --color-gold: #D4AF37;
+  --color-gold-dark: #C59A2C;
+  --color-amber: #D4AF37;
+  --color-amber-soft: #FDF6E6;
+  --color-amber-tint: #FEF9E6;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F9FAFB;
+  --color-line: #E5E7EB;
+  --color-line-soft: #F3F4F6;
+  --color-ink: #111827;
+  --color-ink-soft: #6B7280;
+  --color-ink-muted: #9CA3AF;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-info: #3B82F6;
+
+  --radius: 1rem; /* 16px card radius */
+  --btn-radius: 10px;
+  --input-radius: 10px;
+  --grid-gap: 16px;
+  --section-gap: 20px;
+
+  /* Typography sizes (approved defaults) */
+  --font-h1: 32px;
+  --font-h2: 24px;
+  --font-h3: 20px;
+  --font-h4: 18px;
+  --font-body: 14px;
+  --font-small: 12px;
+
+  /* Canvas + surfaces */
+  --color-canvas: #f4f4f5;
+  --color-surface: #ffffff;
+  --color-surface-muted: #fafafa;
+
+  /* Sidebar (dark) */
+  --color-sidebar: #18181b;
+  --color-sidebar-foreground: #d4d4d8;
+  --color-sidebar-muted: #71717a;
+
+  /* Brand gold / amber */
+  --color-gold: #c8860d;
+  --color-gold-dark: #9a6a0a;
+  --color-amber: #F5A623;
+  --color-amber-dark: #C8860D;
+  --color-amber-soft: #FDECC8;
+  --color-amber-tint: #FEF6E7;
+
+  /* Text */
+  --color-ink: #111827;
+  --color-ink-soft: #8B8B8F;
+  --color-ink-muted: #A1A1AA;
+
+  /* Borders */
+  --color-line: #ECECED;
+  --color-line-soft: #F6F6F7;
+
+  /* Status */
+  --color-success: #16a34a;
+  --color-success-soft: #dcfce7;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fee2e2;
+  --color-warning: #d97706;
+  --color-warning-soft: #fef3c7;
+  --color-info: #2563EB;
+  --color-info-soft: #DBEAFE;
+
+  --radius: 0.75rem;
+  --bg-canvas: #FBFBFB;
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* thin scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 9999px;
+}
