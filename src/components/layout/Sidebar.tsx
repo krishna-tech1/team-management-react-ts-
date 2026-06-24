@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom"
 import { LogOut, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/context/AuthContext"
 
 export interface NavItem {
   label: string
@@ -19,6 +20,12 @@ export function Sidebar({
   items: NavItem[]
 }) {
   const navigate = useNavigate()
+  const { logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    navigate("/login")
+  }
 
   return (
     <aside style={{ width: 'var(--sidebar-width)' }} className="fixed inset-y-0 left-0 z-30 flex flex-col bg-sidebar">
@@ -53,7 +60,7 @@ export function Sidebar({
 
       <div className="space-y-1 border-t border-white/10 px-3 py-4">
         <button
-          onClick={() => navigate("/login")}
+          onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-white/5 hover:text-white"
         >
           <LogOut className="h-[18px] w-[18px]" />

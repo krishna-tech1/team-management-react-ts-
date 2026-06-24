@@ -8,6 +8,7 @@ import {
   Building2,
   ClipboardList,
   MapPin,
+  Settings,
 } from "lucide-react"
 import type { NavItem } from "@/components/layout/Sidebar"
 
@@ -28,4 +29,5 @@ export const leadNav: NavItem[] = [
   { label: "Employee Tracking", to: "/lead/tracking", icon: MapPin },
   { label: "Analytics", to: "/lead/analytics", icon: BarChart3 },
   { label: "Incentives", to: "/lead/incentives", icon: BadgePercent },
+  { label: "Settings", to: "/lead/settings", icon: Settings },
 ]

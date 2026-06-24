@@ -1,16 +1,33 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react"
+import { useAuth } from "@/context/AuthContext"
 
 export default function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("admin@complianceos.com")
   const [password, setPassword] = useState("password")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: React.FormEvent) {
+  // Redirect back to where the user came from, defaulting to /dashboard
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/dashboard"
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    navigate("/dashboard")
+    setError("")
+    setLoading(true)
+    try {
+      await login({ email, password })
+      navigate(from, { replace: true })
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Login failed")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -67,11 +84,16 @@ export default function Login() {
 
           <button
             type="submit"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-amber text-sm font-bold text-sidebar transition-colors hover:bg-gold"
+            disabled={loading}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-amber text-sm font-bold text-sidebar transition-colors hover:bg-gold disabled:opacity-60"
           >
-            Sign In to Dashboard
-            <ArrowRight className="h-4 w-4" />
+            {loading ? "Signing in..." : "Sign In to Dashboard"}
+            {!loading && <ArrowRight className="h-4 w-4" />}
           </button>
+
+          {error && (
+            <p className="text-center text-sm font-semibold text-danger">{error}</p>
+          )}
         </form>
 
         <p className="mt-6 text-center text-xs text-ink-muted">

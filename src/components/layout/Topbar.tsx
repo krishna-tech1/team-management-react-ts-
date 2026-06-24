@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom"
 import { employees } from '@/data/employees'
 import { clients } from '@/data/clients'
 import { tasks } from '@/data/tasks'
+import { useAuth } from "@/context/AuthContext"
 
 export function Topbar({
   searchPlaceholder = "Search operations, filings, or teams...",
@@ -33,6 +34,7 @@ export function Topbar({
 
   const inputRef = useRef<HTMLInputElement | null>(null)
   const navigate = useNavigate()
+  const { logout } = useAuth()
 
   const [notifOpen, setNotifOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -260,11 +262,8 @@ export function Topbar({
       onCancel={() => setConfirmOpen(false)}
       onConfirm={() => {
         setConfirmOpen(false)
-        try {
-          localStorage.clear()
-          sessionStorage.clear()
-          toast({ type: 'success', message: 'You have been logged out' })
-        } catch {}
+        logout()
+        toast({ type: 'success', message: 'You have been logged out' })
         navigate('/login')
       }}
     />
