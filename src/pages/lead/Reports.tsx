@@ -1,4 +1,6 @@
+import { useNavigate } from 'react-router-dom'
 import { downloadCsv } from '@/lib/utils'
+import { toast } from '@/components/ui/Toast'
 
 interface TopEmployee {
   rank: number
@@ -31,6 +33,7 @@ const taskDomains: TaskDomain[] = [
 ]
 
 export default function Reports() {
+  const navigate = useNavigate()
   const handleExport = () => {
     const rows = topEmployees.map((emp) => ({
       Rank: emp.rank,
@@ -57,7 +60,7 @@ export default function Reports() {
             </svg>
             Export Report
           </button>
-          <button className="analytics-btn-gold">
+          <button className="analytics-btn-gold" onClick={() => toast({ message: 'Analytics data updated successfully', type: 'success' })}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
               <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.92-10.28l5.67-5.67" />
             </svg>
@@ -153,7 +156,7 @@ export default function Reports() {
         <div className="analytics-table-card">
           <div className="analytics-card-header-row">
             <h3 className="analytics-card-title">Top Performing Employees</h3>
-            <button className="analytics-link-btn">Full Leaderboard</button>
+            <button className="analytics-link-btn" onClick={() => navigate('/lead/incentives')}>Full Leaderboard</button>
           </div>
           <table className="analytics-table">
             <thead>

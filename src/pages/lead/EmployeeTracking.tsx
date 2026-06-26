@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { downloadCsv } from '@/lib/utils'
+import { toast } from '@/components/ui/Toast'
 
 interface StatCard {
   id: string
@@ -77,15 +79,28 @@ interface Executive {
 }
 
 const executives: Executive[] = [
-  { id: 'EMP-0921', name: 'Aditi Sharma', initials: 'AS', color: '#b89047', checkIn: '08:45 AM', checkInStatus: 'On Time', checkInOk: true, checkOut: '---', location: 'Cyber City, Hub 4', locationIcon: 'pin', status: 'ON SITE', statusClass: 'status-onsite' },
-  { id: 'EMP-0480', name: 'Rahul Verma', initials: 'RV', color: '#3d7cf0', checkIn: '08:12 AM', checkInStatus: 'Late (12m)', checkInOk: false, checkOut: '---', location: 'En-route Sector 62', locationIcon: 'warning', status: 'TRANSIT', statusClass: 'status-transit' },
-  { id: 'EMP-1104', name: 'Meera Patel', initials: 'MP', color: '#2bb673', checkIn: '08:55 AM', checkInStatus: 'On Time', checkInOk: true, checkOut: '---', location: 'DLF Phase 2', locationIcon: 'pin', status: 'ON SITE', statusClass: 'status-onsite' },
-  { id: 'EMP-0743', name: 'Sanjay Kumar', initials: 'SK', color: '#8a8fa3', checkIn: '---', checkInStatus: '', checkInOk: null, checkOut: '---', location: 'Residential Address', locationIcon: 'home', status: 'OFFLINE', statusClass: 'status-offline' },
+  // Page 1
+  { id: 'EMP-1042', name: 'Sarah Jenkins', initials: 'SJ', color: '#b89047', checkIn: '08:45 AM', checkInStatus: 'On Time', checkInOk: true, checkOut: '---', location: 'Cyber City, Hub 4', locationIcon: 'pin', status: 'ON SITE', statusClass: 'status-onsite' },
+  { id: 'EMP-1043', name: 'Rahul Verma', initials: 'RV', color: '#3d7cf0', checkIn: '08:12 AM', checkInStatus: 'Late (12m)', checkInOk: false, checkOut: '---', location: 'En-route Sector 62', locationIcon: 'warning', status: 'TRANSIT', statusClass: 'status-transit' },
+  { id: 'EMP-1044', name: 'Meera Patel', initials: 'MP', color: '#2bb673', checkIn: '08:55 AM', checkInStatus: 'On Time', checkInOk: true, checkOut: '---', location: 'DLF Phase 2', locationIcon: 'pin', status: 'ON SITE', statusClass: 'status-onsite' },
+  { id: 'EMP-1045', name: 'Sanjay Kumar', initials: 'SK', color: '#8a8fa3', checkIn: '---', checkInStatus: '', checkInOk: null, checkOut: '---', location: 'Residential Address', locationIcon: 'home', status: 'OFFLINE', statusClass: 'status-offline' },
+  // Page 2
+  { id: 'EMP-1046', name: 'John Doe', initials: 'JD', color: '#b89047', checkIn: '09:05 AM', checkInStatus: 'Late (5m)', checkInOk: false, checkOut: '---', location: 'Gachibowli office', locationIcon: 'pin', status: 'ON SITE', statusClass: 'status-onsite' },
+  { id: 'EMP-1047', name: 'Sarah Miller', initials: 'SM', color: '#3d7cf0', checkIn: '08:30 AM', checkInStatus: 'On Time', checkInOk: true, checkOut: '---', location: 'Transit Metro Station', locationIcon: 'pin', status: 'TRANSIT', statusClass: 'status-transit' },
+  { id: 'EMP-1048', name: 'Robert Wilson', initials: 'RW', color: '#2bb673', checkIn: '08:50 AM', checkInStatus: 'On Time', checkInOk: true, checkOut: '---', location: 'DLF Cyber Park', locationIcon: 'pin', status: 'ON SITE', statusClass: 'status-onsite' },
+  { id: 'EMP-1049', name: 'Anita Kumar', initials: 'AK', color: '#8a8fa3', checkIn: '---', checkInStatus: '', checkInOk: null, checkOut: '---', location: 'Residential Address', locationIcon: 'home', status: 'OFFLINE', statusClass: 'status-offline' },
+  // Page 3
+  { id: 'EMP-1050', name: 'David Chen', initials: 'DC', color: '#b89047', checkIn: '08:48 AM', checkInStatus: 'On Time', checkInOk: true, checkOut: '---', location: 'Infotech Park', locationIcon: 'pin', status: 'ON SITE', statusClass: 'status-onsite' },
+  { id: 'EMP-1051', name: 'Sana Khan', initials: 'SK', color: '#3d7cf0', checkIn: '08:40 AM', checkInStatus: 'On Time', checkInOk: true, checkOut: '---', location: 'Expressway Route 2', locationIcon: 'pin', status: 'TRANSIT', statusClass: 'status-transit' },
+  { id: 'EMP-1052', name: 'Vikram Patel', initials: 'VP', color: '#2bb673', checkIn: '09:15 AM', checkInStatus: 'Late (15m)', checkInOk: false, checkOut: '---', location: 'Adani Port office', locationIcon: 'pin', status: 'ON SITE', statusClass: 'status-onsite' },
+  { id: 'EMP-1053', name: 'Amit Mishra', initials: 'AM', color: '#8a8fa3', checkIn: '---', checkInStatus: '', checkInOk: null, checkOut: '---', location: 'Residential Address', locationIcon: 'home', status: 'OFFLINE', statusClass: 'status-offline' },
 ]
 
 const PAGES = 3
+const PAGE_SIZE = 4
 
 export default function EmployeeTracking() {
+  const navigate = useNavigate()
   const [currentPage, setCurrentPage] = useState(1)
 
   const handleExportLog = () => {
@@ -101,6 +116,19 @@ export default function EmployeeTracking() {
     downloadCsv(rows, 'employee_tracking_log.csv')
   }
 
+  const handleSyncDashboard = () => {
+    toast({ message: 'Dashboard synchronized successfully', type: 'success' })
+  }
+
+  const handleSyncReload = () => {
+    toast({ message: 'Tracking data updated successfully', type: 'success' })
+  }
+
+  const paginatedExecutives = executives.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  )
+
   return (
     <div className="tracking-page-v2">
       <div className="tracking-header-row">
@@ -115,7 +143,7 @@ export default function EmployeeTracking() {
             </svg>
             Export Log
           </button>
-          <button className="tracking-btn-gold">
+          <button className="tracking-btn-gold" onClick={handleSyncDashboard}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
               <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
@@ -162,7 +190,7 @@ export default function EmployeeTracking() {
             </tr>
           </thead>
           <tbody>
-            {executives.map((exec) => (
+            {paginatedExecutives.map((exec) => (
               <tr key={exec.id}>
                 <td>
                   <div className="tracking-exec-cell">
@@ -202,7 +230,7 @@ export default function EmployeeTracking() {
                   <span className={`tracking-status-pill ${exec.statusClass}`}>{exec.status}</span>
                 </td>
                 <td>
-                  <button className="tracking-action-arrow" aria-label="View employee details">
+                  <button className="tracking-action-arrow" aria-label="View employee details" onClick={() => navigate(`/lead/employees/${exec.id}`)}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
                   </button>
                 </td>
@@ -212,7 +240,9 @@ export default function EmployeeTracking() {
         </table>
 
         <div className="tracking-table-footer">
-          <span className="tracking-showing">Showing 4 of 12 employees</span>
+          <span className="tracking-showing">
+            Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, executives.length)} of {executives.length} employees
+          </span>
           <div className="tracking-pagination">
             <button className="tracking-page-btn" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -228,7 +258,7 @@ export default function EmployeeTracking() {
       </div>
 
       {/* Floating Reload Button */}
-      <button className="tracking-fab" aria-label="Sync tracking data">
+      <button className="tracking-fab" aria-label="Sync tracking data" onClick={handleSyncReload}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
           <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>

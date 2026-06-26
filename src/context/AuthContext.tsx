@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react'
+import { adminUsers } from '@/data/users'
 
 interface SessionUser {
   name: string
@@ -31,9 +32,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           reject(new Error('Email and password are required'))
           return
         }
+        const found = adminUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
         const sessionUser: SessionUser = {
-          name: 'Aarav Mehta',
-          role: 'Team Lead',
+          name: found ? found.name : 'Aarav Mehta',
+          role: found ? found.role : (email.includes('admin') ? 'Super Admin' : 'Team Lead'),
           email,
           avatar: null,
         }

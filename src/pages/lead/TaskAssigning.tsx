@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { downloadCsv } from '@/lib/utils'
+import { toast } from '@/components/ui/Toast'
 
 interface UnassignedTask {
   id: number
@@ -11,7 +13,7 @@ interface UnassignedTask {
   icon: React.ReactNode
 }
 
-const unassignedTasks: UnassignedTask[] = [
+const initialUnassignedTasks: UnassignedTask[] = [
   {
     id: 1,
     title: 'Client Audit & Risk Assessment',
@@ -58,20 +60,29 @@ const unassignedTasks: UnassignedTask[] = [
   },
 ]
 
-const availability = [
+const initialAvailability = [
   { name: 'Rahul Verma', avatar: 'RV', load: 85, color: '#e2566b' },
   { name: 'Sana K.', avatar: 'SK', load: 20, color: '#2bb673' },
   { name: 'David Chen', avatar: 'DC', load: 45, color: '#e0941a' },
+  { name: 'Vikram Patel', avatar: 'VP', load: 60, color: '#e0941a' },
+  { name: 'Sarah Jenkins', avatar: 'SJ', load: 10, color: '#2bb673' },
+  { name: 'Anita Mishra', avatar: 'AM', load: 95, color: '#e2566b' },
 ]
 
-const activity = [
+const initialActivity = [
   { id: 1, text: 'Rahul Verma completed Audit Phase 1', time: 'Just now' },
   { id: 2, text: 'Sana K. started Quarterly Filing', time: '15 mins ago' },
 ]
 
 export default function TaskAssigning() {
+  const [tasksList, setTasksList] = useState<UnassignedTask[]>(initialUnassignedTasks)
+  const [availList, setAvailList] = useState(initialAvailability)
+  const [activityLogs, setActivityLogs] = useState(initialActivity)
+  const [showAllAssignees, setShowAllAssignees] = useState(false)
+  const [assigningTask, setAssigningTask] = useState<UnassignedTask | null>(null)
+
   const handleExportProgress = () => {
-    const rows = unassignedTasks.map((t) => ({
+    const rows = tasksList.map((t) => ({
       ID: t.id,
       Title: t.title,
       Client: t.client,
@@ -80,6 +91,64 @@ export default function TaskAssigning() {
     }))
     downloadCsv(rows, 'task_progress_report.csv')
   }
+
+  const getPriorityWeight = (priority: string) => {
+    const p = priority.toUpperCase()
+    if (p.includes('CRITICAL')) return 4
+    if (p.includes('HIGH')) return 3
+    if (p.includes('STANDARD')) return 2
+    if (p.includes('LOW')) return 1
+    return 0
+  }
+
+  const handlePrioritySort = () => {
+    setTasksList((prev) => {
+      const sorted = [...prev]
+      sorted.sort((a, b) => getPriorityWeight(b.priority) - getPriorityWeight(a.priority))
+      return sorted
+    })
+    toast({ message: 'Sorted by priority (Critical > High > Standard > Low)', type: 'success' })
+  }
+
+  const handleAssignClick = (task: UnassignedTask) => {
+    setAssigningTask(task)
+  }
+
+  const selectEmployeeForTask = (empName: string) => {
+    if (!assigningTask) return
+
+    // Update employee load
+    setAvailList((prev) =>
+      prev.map((emp) => {
+        if (emp.name === empName) {
+          const nextLoad = Math.min(100, emp.load + 15)
+          let color = '#2bb673'
+          if (nextLoad > 80) color = '#e2566b'
+          else if (nextLoad > 40) color = '#e0941a'
+          return { ...emp, load: nextLoad, color }
+        }
+        return emp
+      })
+    )
+
+    // Log Activity
+    setActivityLogs((prev) => [
+      {
+        id: Date.now(),
+        text: `Assigned task "${assigningTask.title}" to ${empName}`,
+        time: 'Just now',
+      },
+      ...prev,
+    ])
+
+    // Remove task from queue
+    setTasksList((prev) => prev.filter((t) => t.id !== assigningTask.id))
+
+    toast({ message: `Successfully assigned "${assigningTask.title}" to ${empName}!`, type: 'success' })
+    setAssigningTask(null)
+  }
+
+  const displayedAvailability = showAllAssignees ? availList : availList.slice(0, 3)
 
   return (
     <div className="task-page">
@@ -93,7 +162,41 @@ export default function TaskAssigning() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
             Export Progress
           </button>
-          <button className="task-btn-gold">
+          <button className="task-btn-gold" onClick={() => {
+            const newTitle = prompt("Enter task title:")
+            if (!newTitle) return
+            const newClient = prompt("Enter client name:")
+            if (!newClient) return
+            const priorityInput = prompt("Enter priority (Critical, High, Standard, Low):", "Standard")
+            if (!priorityInput) return
+
+            const normPriority = priorityInput.toUpperCase()
+            const priorityClass = normPriority.includes("CRIT")
+              ? "priority-high"
+              : normPriority.includes("HIGH")
+              ? "priority-high"
+              : normPriority.includes("LOW")
+              ? "priority-low"
+              : "priority-standard"
+
+            const newTask: UnassignedTask = {
+              id: Date.now(),
+              title: newTitle,
+              client: newClient,
+              created: 'Just now',
+              priority: priorityInput.toUpperCase() + ' PRIORITY',
+              priorityClass,
+              est: '4 Hours',
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d2233" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+                </svg>
+              ),
+            }
+
+            setTasksList(prev => [...prev, newTask])
+            toast({ message: `Created new unassigned task: ${newTitle}`, type: 'success' })
+          }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Create New Task
           </button>
@@ -103,7 +206,7 @@ export default function TaskAssigning() {
       {/* Stats */}
       <div className="task-stats-row">
         {[
-          { label: 'UNASSIGNED TASKS', value: '28', iconBg: '#fdf3e1', iconColor: '#b89047', badge: <span className="task-trend-up">↗ 12%</span> },
+          { label: 'UNASSIGNED TASKS', value: String(tasksList.length), iconBg: '#fdf3e1', iconColor: '#b89047', badge: <span className="task-trend-up">Live</span> },
           { label: 'IN PROGRESS', value: '142', iconBg: '#e8f0fe', iconColor: '#3d7cf0', badge: <span className="task-stat-desc">Current Load</span> },
           { label: 'COMPLETED TODAY', value: '56', iconBg: '#e7f7ed', iconColor: '#2bb673', badge: <span className="task-stat-target-met">✓ Target Met</span> },
           { label: 'DELAYED DELIVERIES', value: '04', iconBg: '#fcebec', iconColor: '#e2566b', badge: <span className="task-stat-critical">Critical</span> },
@@ -126,23 +229,29 @@ export default function TaskAssigning() {
         <div className="task-queue-card">
           <div className="task-card-header-row">
             <h3 className="task-card-title">Unassigned Queue</h3>
-            <button className="task-link-btn">Priority Sort</button>
+            <button className="task-link-btn" onClick={handlePrioritySort}>Priority Sort</button>
           </div>
           <div className="task-queue-list">
-            {unassignedTasks.map((t) => (
-              <div className="task-queue-item" key={t.id}>
-                <div className="task-queue-icon">{t.icon}</div>
-                <div className="task-queue-content">
-                  <div className="task-queue-title">{t.title}</div>
-                  <div className="task-queue-meta">{t.client} • Created {t.created}</div>
-                </div>
-                <div className="task-queue-details">
-                  <span className={`task-badge ${t.priorityClass}`}>{t.priority}</span>
-                  <span className="task-est">Est. {t.est}</span>
-                  <button className="task-assign-btn">Assign</button>
-                </div>
+            {tasksList.length === 0 ? (
+              <div style={{ padding: '30px 10px', textAlign: 'center', color: '#8a8fa3', fontSize: '13.5px' }}>
+                All tasks assigned! The queue is empty.
               </div>
-            ))}
+            ) : (
+              tasksList.map((t) => (
+                <div className="task-queue-item" key={t.id}>
+                  <div className="task-queue-icon">{t.icon}</div>
+                  <div className="task-queue-content">
+                    <div className="task-queue-title">{t.title}</div>
+                    <div className="task-queue-meta">{t.client} • Created {t.created}</div>
+                  </div>
+                  <div className="task-queue-details">
+                    <span className={`task-badge ${t.priorityClass}`}>{t.priority}</span>
+                    <span className="task-est">Est. {t.est}</span>
+                    <button className="task-assign-btn" onClick={() => handleAssignClick(t)}>Assign</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -152,7 +261,7 @@ export default function TaskAssigning() {
               <h3 className="task-card-title">Employee Availability</h3>
             </div>
             <div className="task-availability-list">
-              {availability.map((emp) => (
+              {displayedAvailability.map((emp) => (
                 <div className="task-avail-item" key={emp.name}>
                   <div className="task-avail-avatar">
                     <img src={`https://ui-avatars.com/api/?name=${emp.name}&background=f0f2f8&color=1d2233`} alt={emp.name} />
@@ -161,7 +270,7 @@ export default function TaskAssigning() {
                     <span className="task-avail-name">{emp.name}</span>
                     <div className="task-avail-bar-wrap">
                       <div className="task-avail-bar-bg">
-                        <div className="task-avail-bar-fill" style={{ width: `${emp.load}%`, background: '#b89047' }} />
+                        <div className="task-avail-bar-fill" style={{ width: `${emp.load}%`, background: emp.color }} />
                       </div>
                       <span className="task-avail-load">{emp.load}% Load</span>
                     </div>
@@ -170,7 +279,9 @@ export default function TaskAssigning() {
                 </div>
               ))}
             </div>
-            <button className="task-view-all-btn">View All Assignees</button>
+            <button className="task-view-all-btn" onClick={() => setShowAllAssignees(!showAllAssignees)}>
+              {showAllAssignees ? 'View Less' : 'View All Assignees'}
+            </button>
           </div>
 
           <div className="task-side-card">
@@ -178,7 +289,7 @@ export default function TaskAssigning() {
               <h3 className="task-card-title">Live Activity</h3>
             </div>
             <div className="task-activity-list">
-              {activity.map((act) => (
+              {activityLogs.map((act) => (
                 <div className="task-activity-item" key={act.id}>
                   <div className="task-activity-line" />
                   <div className="task-activity-dot" />
@@ -192,6 +303,51 @@ export default function TaskAssigning() {
           </div>
         </div>
       </div>
+
+      {assigningTask && (
+        <div className="overview-modal-overlay" onClick={() => setAssigningTask(null)}>
+          <div className="overview-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Select Assignee</h3>
+            <p style={{ fontSize: 13, color: '#8a8fa3', margin: '-8px 0 10px 0' }}>
+              Assigning: <strong>{assigningTask.title}</strong>
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 300, overflowY: 'auto' }}>
+              {availList.map((emp) => (
+                <div
+                  key={emp.name}
+                  onClick={() => selectEmployeeForTask(emp.name)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'between',
+                    padding: '10px 14px',
+                    border: '1px solid #e7e9f1',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    background: '#fff',
+                    transition: 'all 0.2s',
+                  }}
+                  className="hover:border-amber hover:bg-amber-soft"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f4f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>
+                      {emp.avatar}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1d2233' }}>{emp.name}</div>
+                      <div style={{ fontSize: 11, color: '#8a8fa3' }}>Current Load: {emp.load}%</div>
+                    </div>
+                  </div>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: emp.color }} />
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+              <button className="overview-btn-outline" onClick={() => setAssigningTask(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

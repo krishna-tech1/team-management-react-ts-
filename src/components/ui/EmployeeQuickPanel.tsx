@@ -39,7 +39,7 @@ export default function EmployeeQuickPanel({ employee, onClose, onEdit, onView, 
 
         <div className="mt-3 space-y-2">
           <Button variant="outline" className="w-full py-2" icon={<Edit className="h-4 w-4" />} onClick={() => { onEdit(); onClose() }}>Edit Records</Button>
-          <Button variant="ghost" className="w-full py-2 text-ink" icon={<Eye className="h-4 w-4" />} onClick={() => { onView(); onClose() }}>view</Button>
+          <Button variant="ghost" className="w-full py-2 text-ink" onClick={() => { onView(); onClose() }}>view</Button>
           {employee.status !== 'Inactive' ? (
             <Button variant="ghost" className="w-full py-2 text-danger" icon={<UserMinus className="h-4 w-4" />} onClick={() => { onDeactivate(); onClose() }}>Deactivate Employee</Button>
           ) : (

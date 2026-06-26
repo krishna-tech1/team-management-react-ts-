@@ -21,8 +21,12 @@ export default function Login() {
     setError("")
     setLoading(true)
     try {
-      await login({ email, password })
-      navigate(from, { replace: true })
+      const loggedInUser = await login({ email, password })
+      let dest = from
+      if (from === "/dashboard" || from === "/" || from === "/login") {
+        dest = loggedInUser.role === "Team Lead" ? "/lead" : "/dashboard"
+      }
+      navigate(dest, { replace: true })
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed")
     } finally {
@@ -41,7 +45,7 @@ export default function Login() {
         </div>
 
         <h1 className="text-3xl font-extrabold tracking-tight text-ink">Welcome Back</h1>
-        <p className="mt-1 text-sm text-ink-soft">Sign in to your Admin Console.</p>
+        <p className="mt-1 text-sm text-ink-soft">Sign in (Admin: admin@complianceos.com | Lead: vikram.sharma@complianceos.com)</p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>

@@ -498,3 +498,13 @@ body {
 .task-activity-content { display:flex; flex-direction:column; gap:3px; }
 .task-activity-text { font-size:13px; color:#1d2233; line-height:1.4; }
 .task-activity-time { font-size:11px; color:#8a8fa3; }
+
+/* Global Override: Remove backdrop blur effects to meet QA requirements */
+*,
+.backdrop-blur,
+.backdrop-filter,
+[class*="backdrop-blur"],
+[class*="backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}

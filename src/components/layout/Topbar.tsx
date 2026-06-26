@@ -121,11 +121,12 @@ export function Topbar({
                   <div key={`${r.type}-${r.id}`} className="p-2 rounded-md hover:bg-surface-muted cursor-pointer" onClick={() => {
                     setResultsOpen(false)
                     try { window.dispatchEvent(new CustomEvent('app:search', { detail: '' })) } catch {}
-                    if (r.type === 'employee') navigate(`/employees/${r.id}`)
-                    if (r.type === 'client') navigate(`/clients/${r.id}`)
-                    if (r.type === 'task') navigate(`/tasks/${r.id}`)
-                    if (r.type === 'page') navigate(r.route)
-                    if (r.type === 'incentive') navigate('/incentives')
+                    const isLead = window.location.pathname.startsWith('/lead') || userRole === 'Team Lead'
+                    if (r.type === 'employee') navigate(isLead ? `/lead/employees/${r.id}` : `/employees/${r.id}`)
+                    if (r.type === 'client') navigate(isLead ? `/lead/clients/${r.id}` : `/clients/${r.id}`)
+                    if (r.type === 'task') navigate(isLead ? `/lead/tasks` : `/tasks/${r.id}`)
+                    if (r.type === 'page') navigate(isLead ? `/lead/${r.id}` : r.route)
+                    if (r.type === 'incentive') navigate(isLead ? `/lead/incentives` : '/incentives')
                   }}>
                     <div className="text-sm font-bold">{r.title}</div>
                     <div className="text-xs text-ink-muted">{r.subtitle}</div>
@@ -179,21 +180,9 @@ export function Topbar({
         </div>
 
         <div className="relative">
-          <button onClick={() => setSettingsOpen((s) => !s)} className="text-ink-soft transition-colors hover:text-ink" aria-label="Settings">
+          <button className="text-ink-soft cursor-default" aria-label="Settings" style={{ pointerEvents: 'none' }}>
             <Settings className="h-5 w-5" />
           </button>
-          {settingsOpen && (
-            <div ref={settingsRef} className="absolute right-0 mt-2 w-96 z-50">
-              <div className="fixed inset-0 z-40" />
-              <Card>
-                <div className="p-4">
-                  <div className="text-lg font-semibold">Settings</div>
-                  <div className="mt-2 text-sm text-ink-muted">No settings page found. This is a placeholder.</div>
-                  <div className="mt-3 text-right"><Button variant="ghost" onClick={() => setSettingsOpen(false)}>Close</Button></div>
-                </div>
-              </Card>
-            </div>
-          )}
         </div>
 
         <div className="relative">
@@ -244,8 +233,10 @@ export function Topbar({
             <div ref={profileRef} className="absolute right-0 mt-2 w-40 z-50">
               <Card>
                 <div className="p-2">
-                  <button className="w-full text-left px-3 py-2 text-sm" onClick={() => { setProfileOpen(false); /* no profile route exists */ alert('Profile placeholder') }}>Profile</button>
-                  <button className="w-full text-left px-3 py-2 text-sm" onClick={() => { setProfileOpen(false); setSettingsOpen(true) }}>Settings</button>
+                  <button className="w-full text-left px-3 py-2 text-sm" onClick={() => { setProfileOpen(false); if (userRole === 'Team Lead') navigate('/lead/settings'); else alert('Profile placeholder') }}>Profile</button>
+                  {userRole === 'Team Lead' && (
+                    <button className="w-full text-left px-3 py-2 text-sm" onClick={() => { setProfileOpen(false); navigate('/lead/settings') }}>Settings</button>
+                  )}
                   <button className="w-full text-left px-3 py-2 text-sm" onClick={() => setConfirmOpen(true)}>Logout</button>
                 </div>
               </Card>

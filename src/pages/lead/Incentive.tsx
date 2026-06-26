@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { downloadCsv } from '@/lib/utils'
+import { toast } from '@/components/ui/Toast'
 
 interface LeaderboardRow {
   rank: number
@@ -48,10 +50,12 @@ const poolAllocations = [
 ]
 
 export default function Incentive() {
+  const navigate = useNavigate()
   const [approvedIds, setApprovedIds] = useState<string[]>([])
 
   const handleApprove = (id: string) => {
     setApprovedIds((prev) => [...prev, id])
+    toast({ message: `Payout validation ${id} approved successfully`, type: 'success' })
   }
 
   const handleExport = () => {
@@ -168,7 +172,7 @@ export default function Incentive() {
         <div className="incentive-leaderboard-card">
           <div className="incentive-card-header-row">
             <h3 className="incentive-card-title">Team Incentive Leaderboard</h3>
-            <button className="incentive-link-btn">View Full Rank</button>
+            <button className="incentive-link-btn" onClick={() => navigate('/lead/incentives')}>View Full Rank</button>
           </div>
           <table className="incentive-leader-table">
             <thead>
